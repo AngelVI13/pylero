@@ -77,6 +77,7 @@ Defined in `pyproject.toml`:
   - `all` - Complete suite
 - **Tox**: `tox` for multi-version testing
 - **Unit tests location**: `src/unit_tests/`
+- **Note**: All tests require a live Polarion instance connection. The upstream CI only runs pre-commit/linting checks, not the test suite. Do not expect tests to pass without a configured Polarion server.
 
 ## Git Workflow
 
