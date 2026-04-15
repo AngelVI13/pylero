@@ -75,7 +75,7 @@ Defined in `pyproject.toml`:
   - `tier0` - Basic attribute tests
   - `tier1` - Integration tests (requires Polarion connection)
   - `all` - Complete suite
-- **Tox**: `tox` for multi-version testing
+- **Tox**: Used for release scaffolding, not for regular testing
 - **Unit tests location**: `src/unit_tests/`
 - **Note**: All tests require a live Polarion instance connection. The upstream CI only runs pre-commit/linting checks, not the test suite. Do not expect tests to pass without a configured Polarion server.
 
