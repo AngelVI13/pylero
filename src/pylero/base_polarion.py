@@ -946,10 +946,9 @@ class BasePolarion(object):
             if val not in valid_values:
                 raise PyleroLibException("Acceptable values for {0} are:" "{1}".format(enum_id, valid_values))
 
-    def get_valid_field_values(self, enum_id, control=None):
-        """Gets the available enumeration options.
-        Uses a cache dict because the time to get valid fields from server
-        is time prohibitive.
+    def _get_enum_options(self, enum_id, control=None):
+        """Fetch enum options for the given id, using a cache dict
+        because the time to get valid fields from server is time prohibitive.
 
         Args:
             enum_id: The enum code to get values for
@@ -968,10 +967,52 @@ class BasePolarion(object):
             enums = enum_base.get(control)
         if not enums:
             enums = self.session.tracker_client.service.getEnumOptionsForIdWithControl(project_id, enum_id, control)
-            self._cache["enums"][enum_id] = {}
+            if enum_id not in self._cache["enums"]:
+                self._cache["enums"][enum_id] = {}
             self._cache["enums"][enum_id][control] = enums
+        return enums
+
+    def get_valid_field_values(self, enum_id, control=None):
+        """Gets the available enumeration options.
+        Uses a cache dict because the time to get valid fields from server
+        is time prohibitive.
+
+        Args:
+            enum_id: The enum code to get values for
+            control: the control key for the enumeration. default:None
+
+        Returns:
+            Array of EnumOptions
+
+        References:
+            Tracker.getEnumOptionsForId
+        """
         # the _cache contains _suds_object, so the id attribute is used.
-        return [enum.id for enum in enums]
+        return [enum.id for enum in self._get_enum_options(enum_id, control)]
+
+    def get_name_for_field_value(self, enum_id, value, control=None):
+        """Resolves an enumeration value to its display name.
+        Uses a cache dict because the time to get valid fields from server
+        is time prohibitive.
+
+        Args:
+            enum_id: The enum code to look up
+            value: The enum option id to resolve
+            control: the control key for the enumeration. default:None
+
+        Returns:
+            The display name (enum.name) for the given value
+
+        Raises:
+            PyleroLibException: If no option with the given value exists
+
+        References:
+            Tracker.getEnumOptionsForId
+        """
+        for enum in self._get_enum_options(enum_id, control):
+            if enum.id == value:
+                return enum.name
+        raise PyleroLibException(f'The enum element "{enum_id}" or its value "{value}" do not exist.')
 
     def reload(self):
         """Reloads the object with data from the server.
