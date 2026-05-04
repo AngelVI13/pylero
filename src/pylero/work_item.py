@@ -12,6 +12,7 @@ from pylero.approval import Approval, ArrayOfApproval
 from pylero.attachment import ArrayOfAttachment, Attachment
 from pylero.base_polarion import BasePolarion, Configuration, tx_wrapper
 from pylero.category import ArrayOfCategory, Category
+from pylero.change import Change
 from pylero.comment import ArrayOfComment, Comment
 from pylero.custom import ArrayOfCustom, Custom
 from pylero.custom_field import CustomField
@@ -815,6 +816,23 @@ class _WorkItem(BasePolarion):
         self.check_valid_field_values(status, "approval-status", {})
         suds_status = EnumOptionId(status)._suds_object
         self.session.tracker_client.service.editApproval(self.uri, approvee_id, suds_status)
+
+    def generate_history(self):
+        """Gets all changes of the work item.
+
+        Args:
+            None
+
+        Returns:
+            list of Change
+
+        References:
+            Tracker.generateHistory
+        """
+        changes = []
+        for suds_change in self.session.tracker_client.service.generateHistory(self.uri):
+            changes.append(Change(suds_object=suds_change))
+        return changes
 
     def get_allowed_approvers(self):
         """Gets all allowed approvers"
